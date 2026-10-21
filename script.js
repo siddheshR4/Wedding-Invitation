@@ -54,7 +54,7 @@ function setPull(px) {
 function openCurtain() {
   if (opened) return;
   opened = true;
-  startMusic();                                 // song starts as the curtain opens
+  startMusic();                                 // make sure the song is playing
   screenEl.classList.remove("dragging");
   screenEl.classList.add("opened");
 
@@ -74,6 +74,7 @@ function openCurtain() {
 /* drag the tassel down */
 tassel.addEventListener("pointerdown", (event) => {
   if (opened) return;
+  startMusic();                                 // song starts the moment the tassel is touched
   dragging = true;
   moved = false;
   startY = event.clientY - pull;
@@ -299,12 +300,12 @@ document.addEventListener("keydown", (event) => {
 
 /* ---------- 8. Background music ---------- */
 // Put your song in the same folder as index.html and name it song.mp3.
-// It starts when the curtain opens, and loops from the same second.
+// It starts the moment the tassel is touched, and loops from the same second.
 const MUSIC_START = 71;    // second where the song starts (1:11 = the drop)
 
 const bgm = document.getElementById("bgm");
 bgm.volume = 0.6;
-let musicWanted = false;   // true once the curtain has been opened
+let musicWanted = false;   // true once the tassel has been touched
 let musicSeeked = false;   // true once we have jumped to MUSIC_START
 
 function jumpToStart() {
@@ -315,27 +316,39 @@ function jumpToStart() {
 function tryPlay() {
   if (bgm.readyState >= 1) jumpToStart();
   const p = bgm.play();
-  if (p && p.catch) p.catch(() => {});
+  if (p && p.catch) {
+    p.catch(() => {
+      // phone refused sound: play silently now, sound comes on at the next tap
+      bgm.muted = true;
+      bgm.play().catch(() => {});
+    });
+  }
 }
 
 function startMusic() {
   musicWanted = true;
-  bgm.load();              // make sure the phone starts downloading the song
   tryPlay();
 }
 
-// the file is ready: jump to the drop, and play if the curtain is already open
+// start downloading the song as soon as the page opens (curtain still closed)
+bgm.preload = "auto";
+bgm.load();
+
+// the file is ready: jump to the drop now, so it is waiting for the pull
 bgm.addEventListener("loadedmetadata", () => {
-  if (musicWanted) { jumpToStart(); tryPlay(); }
+  jumpToStart();
+  if (musicWanted) tryPlay();
 });
 bgm.addEventListener("canplay", () => {
   if (musicWanted && bgm.paused) tryPlay();
 });
 
-// if the phone blocked the music, the next tap anywhere starts it
+// any tap or release counts as permission: turn the sound on
 ["pointerup", "touchend", "click"].forEach((type) => {
   document.addEventListener(type, () => {
-    if (musicWanted && bgm.paused) tryPlay();
+    if (!musicWanted) return;
+    if (bgm.muted) bgm.muted = false;
+    if (bgm.paused) tryPlay();
   }, { passive: true });
 });
 

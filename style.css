@@ -111,7 +111,7 @@ h2 {
   --p: 0;                       /* how far the curtains are open: 0 to 1 */
   --dy: 0px;                    /* how far the tassel has been pulled */
   --dur: 0.7s;                  /* speed of the curtain movement */
-  --knot: 52%;                  /* height of the ribbon bow */
+  --knot: 62%;                  /* height of the ribbon bow */
   --tail: clamp(60px, 11vh, 100px);
 
   display: none;
@@ -176,7 +176,7 @@ h2 {
 .curtain-text {
   position: absolute;
   left: 0; right: 0;
-  top: 17%;
+  top: 14%;
   z-index: 3;
   padding: 0 24px;
   text-align: center;
@@ -184,13 +184,16 @@ h2 {
   transition: opacity var(--dur) ease;
   pointer-events: none;
 }
-.curtain-text > * + * { margin-top: 10px; }
+.curtain-text > * + * { margin-top: 14px; }
 .c-small {
   font-family: var(--sans);
-  font-size: 0.68rem;
-  letter-spacing: 0.3em;
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  line-height: 1.7;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 0 12px rgba(250, 245, 234, 0.95);
 }
 .c-names {
   font-family: var(--script);
