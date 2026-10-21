@@ -1,0 +1,44 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Shrutika and Somesh Wedding//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:day1@shrutika-somesh-wedding
+DTSTAMP:20261021T000000Z
+DTSTART;VALUE=DATE:20270209
+DTEND;VALUE=DATE:20270210
+SUMMARY:Shrutika & Somesh Wedding - Simant Pujan, Engagement, Sangeet, Haldi
+LOCATION:Matoshri Lawns\, Indori Phata\, Kolhar Ghoti Road\, Akole
+DESCRIPTION:Wedding celebrations of Shrutika & Somesh. Timings will be shared soon.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: wedding celebrations begin
+TRIGGER:-PT15H
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Today: Shrutika & Somesh wedding celebrations
+TRIGGER:PT8H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:day2@shrutika-somesh-wedding
+DTSTAMP:20261021T000000Z
+DTSTART:20270210T061500Z
+DTEND:20270210T081500Z
+SUMMARY:Shrutika & Somesh Wedding Ceremony (Muhurta 11:45 AM)
+LOCATION:Matoshri Lawns\, Indori Phata\, Kolhar Ghoti Road\, Akole
+DESCRIPTION:Vedic Vidhi & Wedding Ceremony of Shrutika & Somesh. Muhurta 11:45 AM.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: Shrutika & Somesh wedding
+TRIGGER:-P1D
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Wedding Muhurta at 11:45 AM
+TRIGGER:-PT2H
+END:VALARM
+END:VEVENT
+END:VCALENDAR
