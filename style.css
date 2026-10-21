@@ -288,7 +288,8 @@ h2 {
   font-size: 0.66rem;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--ink-#455368);
+  color: #455368;
+  font-weight: 600;
   opacity: calc(1 - 4 * var(--p));
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -795,3 +796,26 @@ input:focus, select:focus, textarea:focus {
   background: transparent; border: 0; cursor: pointer;
 }
 .info-close:hover { color: var(--ink); }
+
+/* =========================================================
+   PERSONALISED GUEST NAME
+   ========================================================= */
+.c-guest {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.35rem, 6vw, 1.9rem);
+  line-height: 1.25;
+  color: var(--green);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 0 12px rgba(250, 245, 234, 0.95);
+}
+.curtain-text.has-guest { top: 10%; }
+.curtain-text.has-guest > * + * { margin-top: 11px; }
+.guest-home {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  line-height: 1.25;
+  color: var(--green);
+}

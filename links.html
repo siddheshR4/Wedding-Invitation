@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Guest Invitation Links</title>
+  <style>
+    :root { --cream:#f7f4ef; --card:#fbf9f4; --line:#e2d9c8; --olive:#5b5a44; --gold:#b89d62; --ink:#34332c; --soft:#7a766a; }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:24px 16px 60px; background:var(--cream); color:var(--ink);
+           font-family:"Jost","Helvetica Neue",Arial,sans-serif; line-height:1.55; }
+    .wrap { max-width:720px; margin:0 auto; }
+    h1 { font-family:"Cormorant Garamond",Georgia,serif; font-weight:600; font-size:2rem; margin:0 0 4px; }
+    p.sub { margin:0 0 22px; color:var(--soft); font-size:.95rem; }
+    label { display:block; margin:18px 0 6px; font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--soft); }
+    input, textarea { width:100%; font:inherit; font-size:1rem; color:var(--ink); background:#fffdf9;
+                      border:1px solid var(--line); border-radius:10px; padding:11px 13px; }
+    textarea { resize:vertical; }
+    .hint { font-size:.82rem; color:var(--soft); margin-top:5px; }
+    button { font:inherit; font-size:.85rem; letter-spacing:.06em; cursor:pointer; border-radius:999px;
+             padding:10px 20px; border:1px solid var(--olive); background:var(--olive); color:#fbf8f0; }
+    button.line { background:transparent; color:var(--ink); border-color:var(--soft); }
+    button:hover { opacity:.88; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    #out { margin-top:26px; display:grid; gap:12px; }
+    .item { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+    .item b { font-family:"Cormorant Garamond",Georgia,serif; font-size:1.25rem; }
+    .item input { margin-top:8px; font-size:.82rem; }
+    .item .row { margin-top:10px; }
+    .warn { background:#fff4e0; border:1px solid #e8cf9c; border-radius:10px; padding:10px 13px; margin-top:14px; font-size:.88rem; }
+    [hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Guest Invitation Links</h1>
+  <p class="sub">Type the guest names, get one personal link for each, and send it on WhatsApp.</p>
+
+  <label for="base">Your live site link</label>
+  <input id="base" type="text" placeholder="https://your-username.github.io/wedding-invitation/">
+  <p class="hint">Paste the link of your live invitation (the one from Settings, then Pages).</p>
+  <div class="warn" id="local-warn" hidden>This page is open on your own laptop. Paste your live GitHub link above, otherwise the links will only work on your laptop.</div>
+
+  <label for="names">Guests, one per line</label>
+  <textarea id="names" rows="8" placeholder="Rahul Sharma &amp; Family&#10;Priya Deshmukh&#10;Mama | 9876543210&#10;Patil Family | 9123456780"></textarea>
+  <p class="hint">Add a phone number after a <b>|</b> to send straight to that person. Without a number, WhatsApp lets you pick the chat. A 10-digit number is treated as an Indian number.</p>
+
+  <label for="msg">WhatsApp message</label>
+  <textarea id="msg" rows="5"></textarea>
+  <p class="hint"><b>{name}</b> becomes the guest's name and <b>{link}</b> becomes their personal link.</p>
+
+  <div class="row">
+    <button id="make" type="button">Make links</button>
+    <button id="copyall" class="line" type="button" hidden>Copy all links</button>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+const DEFAULT_MSG =
+  "Namaste {name}! 🙏\n" +
+  "The Raoandure family warmly invites you to the wedding of Shrutika & Somesh (8-10 February 2027, Matoshri Lawns, Akole).\n\n" +
+  "Please open your invitation here:\n{link}";
+
+const baseEl = document.getElementById("base");
+const namesEl = document.getElementById("names");
+const msgEl = document.getElementById("msg");
+const outEl = document.getElementById("out");
+const copyAllBtn = document.getElementById("copyall");
+const localWarn = document.getElementById("local-warn");
+
+function store(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+function load(key) { try { return localStorage.getItem(key) || ""; } catch (e) { return ""; } }
+
+const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || location.protocol === "file:";
+baseEl.value = load("inv_base") || (isLocal ? "" : location.href.replace(/links\.html.*$/, ""));
+msgEl.value = load("inv_msg") || DEFAULT_MSG;
+localWarn.hidden = !isLocal;
+
+let lastLines = [];
+
+function cleanPhone(raw) {
+  const d = (raw || "").replace(/\D/g, "");
+  if (d.length === 10) return "91" + d;
+  if (d.length === 11 && d.startsWith("0")) return "91" + d.slice(1);
+  return d;
+}
+
+function makeLink(base, name) {
+  let b = base.trim();
+  if (!b) return "";
+  if (!/^https?:\/\//i.test(b)) b = "https://" + b;
+  try {
+    const u = new URL(b);
+    u.searchParams.set("to", name);
+    return u.toString();
+  } catch (e) { return ""; }
+}
+
+function render() {
+  const base = baseEl.value;
+  store("inv_base", base);
+  store("inv_msg", msgEl.value);
+  outEl.innerHTML = "";
+  lastLines = [];
+
+  const lines = namesEl.value.split("\n").map(s => s.trim()).filter(Boolean);
+  if (!lines.length) { outEl.textContent = "Add at least one guest name."; copyAllBtn.hidden = true; return; }
+  if (!makeLink(base, "x")) { outEl.textContent = "Paste your live site link first."; copyAllBtn.hidden = true; return; }
+
+  lines.forEach((line) => {
+    const parts = line.split("|");
+    const name = parts[0].trim();
+    const phone = cleanPhone(parts[1]);
+    const link = makeLink(base, name);
+    const text = msgEl.value.split("{name}").join(name).split("{link}").join(link);
+    const wa = "https://wa.me/" + phone + "?text=" + encodeURIComponent(text);
+    lastLines.push(name + ": " + link);
+
+    const card = document.createElement("div");
+    card.className = "item";
+    const title = document.createElement("b");
+    title.textContent = name;
+    const input = document.createElement("input");
+    input.type = "text"; input.readOnly = true; input.value = link;
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const copy = document.createElement("button");
+    copy.type = "button"; copy.className = "line"; copy.textContent = "Copy link";
+    copy.addEventListener("click", () => {
+      const done = () => { copy.textContent = "Copied"; setTimeout(() => copy.textContent = "Copy link", 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(link).then(done, () => { input.select(); document.execCommand("copy"); done(); });
+      else { input.select(); document.execCommand("copy"); done(); }
+    });
+
+    const send = document.createElement("button");
+    send.type = "button"; send.textContent = phone ? "Send on WhatsApp" : "WhatsApp (pick chat)";
+    send.addEventListener("click", () => window.open(wa, "_blank", "noopener"));
+
+    const open = document.createElement("button");
+    open.type = "button"; open.className = "line"; open.textContent = "Preview";
+    open.addEventListener("click", () => window.open(link, "_blank", "noopener"));
+
+    row.append(send, copy, open);
+    card.append(title, input, row);
+    outEl.appendChild(card);
+  });
+  copyAllBtn.hidden = false;
+}
+
+document.getElementById("make").addEventListener("click", render);
+copyAllBtn.addEventListener("click", () => {
+  const text = lastLines.join("\n");
+  const done = () => { copyAllBtn.textContent = "Copied"; setTimeout(() => copyAllBtn.textContent = "Copy all links", 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => {});
+});
+</script>
+</body>
+</html>
