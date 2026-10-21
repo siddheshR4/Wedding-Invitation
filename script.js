@@ -300,18 +300,47 @@ document.addEventListener("keydown", (event) => {
 /* ---------- 8. Background music ---------- */
 // Put your song in the same folder as index.html and name it song.mp3.
 // It starts when the curtain opens, and loops from the same second.
-const MUSIC_START = 72;    // second where the song starts (1:11 = the drop)
+const MUSIC_START = 71;    // second where the song starts (1:11 = the drop)
 
 const bgm = document.getElementById("bgm");
 bgm.volume = 0.6;
+let musicWanted = false;   // true once the curtain has been opened
+let musicSeeked = false;   // true once we have jumped to MUSIC_START
+
+function jumpToStart() {
+  if (musicSeeked) return;
+  try { bgm.currentTime = MUSIC_START; musicSeeked = true; } catch (e) {}
+}
+
+function tryPlay() {
+  if (bgm.readyState >= 1) jumpToStart();
+  const p = bgm.play();
+  if (p && p.catch) p.catch(() => {});
+}
 
 function startMusic() {
-  try { bgm.currentTime = MUSIC_START; } catch (e) {}
-  bgm.play().catch(() => {});
+  musicWanted = true;
+  bgm.load();              // make sure the phone starts downloading the song
+  tryPlay();
 }
+
+// the file is ready: jump to the drop, and play if the curtain is already open
+bgm.addEventListener("loadedmetadata", () => {
+  if (musicWanted) { jumpToStart(); tryPlay(); }
+});
+bgm.addEventListener("canplay", () => {
+  if (musicWanted && bgm.paused) tryPlay();
+});
+
+// if the phone blocked the music, the next tap anywhere starts it
+["pointerup", "touchend", "click"].forEach((type) => {
+  document.addEventListener(type, () => {
+    if (musicWanted && bgm.paused) tryPlay();
+  }, { passive: true });
+});
 
 // when the song ends, start again from the same second
 bgm.addEventListener("ended", () => {
-  bgm.currentTime = MUSIC_START;
+  try { bgm.currentTime = MUSIC_START; } catch (e) {}
   bgm.play().catch(() => {});
 });
