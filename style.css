@@ -111,7 +111,7 @@ h2 {
   --p: 0;                       /* how far the curtains are open: 0 to 1 */
   --dy: 0px;                    /* how far the tassel has been pulled */
   --dur: 0.7s;                  /* speed of the curtain movement */
-  --knot: 45%;                  /* height of the ribbon bow */
+  --knot: 50%;                  /* height of the ribbon bow */
   --tail: clamp(60px, 11vh, 100px);
 
   display: none;
@@ -288,7 +288,7 @@ h2 {
   font-size: 0.66rem;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink-#455368);
   opacity: calc(1 - 4 * var(--p));
   transition: opacity 0.4s ease;
   pointer-events: none;
